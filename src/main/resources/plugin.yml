@@ -1,0 +1,4 @@
+name: NightSkip
+main: org.betamc.nightskip.NightSkip
+version: 1.0-SNAPSHOT
+author: zavdav
