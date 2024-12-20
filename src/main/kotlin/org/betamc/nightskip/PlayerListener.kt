@@ -22,8 +22,15 @@ class PlayerListener : Listener {
     @EventHandler(priority = Event.Priority.Monitor)
     fun onPlayerQuit(event: PlayerQuitEvent) = onPlayerEvent(event)
 
-    @EventHandler(priority = Event.Priority.Monitor)
-    fun onPlayerEnterBed(event: PlayerBedEnterEvent) = onPlayerEvent(event)
+    @EventHandler(ignoreCancelled = true, priority = Event.Priority.Highest)
+    fun onPlayerEnterBed(event: PlayerBedEnterEvent) {
+        val wrapper = getWrapper(event.player.world)
+        if (!wrapper.isNight && !wrapper.isStorming) {
+            event.isCancelled = true
+            return
+        }
+        onPlayerEvent(event)
+    }
 
     @EventHandler(priority = Event.Priority.Monitor)
     fun onPlayerLeaveBed(event: PlayerBedLeaveEvent) = onPlayerEvent(event)
@@ -32,9 +39,6 @@ class PlayerListener : Listener {
         val wrapper = getWrapper(event.player.world)
         scheduleTask { wrapper.handlePlayerEvent(event.type) }
     }
-
-    private fun scheduleTask(runnable: Runnable) =
-        Bukkit.getScheduler().scheduleSyncDelayedTask(NightSkip.plugin, runnable)
 
     private fun getWrapper(world: World) =
         wrappers.first { wrapper -> wrapper.worldName == world.name }

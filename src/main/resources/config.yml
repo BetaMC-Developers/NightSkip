@@ -1,0 +1,31 @@
+#############################################
+# ┌───────────────────────────────────────┐ #
+# │               NightSkip               │ #
+# └───────────────────────────────────────┘ #
+#############################################
+
+# Night configuration
+night:
+  # What percentage of players need to sleep for night to be skipped?
+  sleepingPercentage: 25
+
+  # How long do required players need to sleep until night is skipped?
+  sleepingTime: 5
+
+  # Should the rain be cleared when the night is skipped?
+  clearRain: true
+
+# Storm configuration
+storm:
+  # What percentage of players need to sleep for storm to be skipped?
+  sleepingPercentage: 25
+
+  # How long do required players need to sleep until storm is skipped?
+  sleepingTime: 5
+
+# Chat messages
+messages:
+  nightAnnouncement: '&b{amount} players need to sleep to skip the night.'
+  nightSkipped: '&bThe night has been skipped'
+  stormAnnouncement: '&b{amount} players need to sleep to skip the storm.'
+  stormSkipped: '&bThe storm has been skipped'

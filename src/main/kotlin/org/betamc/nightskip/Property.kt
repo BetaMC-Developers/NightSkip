@@ -3,26 +3,29 @@ package org.betamc.nightskip
 import kotlin.math.max
 import kotlin.math.min
 
-enum class Property(val key: String, var value: Any) {
+enum class Property(val key: String, val default: Any) {
 
-    SLEEPING_PERCENTAGE("sleepingPercentage.value", 25),
-    SLEEPING_PERCENTAGE_INFO("sleepingPercentage.info", "What percentage of players need to sleep for the night to be skipped?"),
-    SLEEPING_TIME("sleepingTime.value", 5),
-    SLEEPING_TIME_INFO("sleepingTime.info", "How long do the required percentage of players have to sleep before the night is skipped?"),
-    CLEAR_RAIN("clearRain.value", true),
-    CLEAR_RAIN_INFO("clearRain.info", "Should the rain be cleared when the night is skipped?"),
-    ANNOUNCE_MSG("announceMsg.value", "&b{amount} players need to sleep to skip the night."),
-    ANNOUNCE_MSG_INFO("announceMsg.info", "Announcement message"),
-    SUCCESS_MSG("successMsg.value", "&bThe night has been skipped"),
-    SUCCESS_MSG_INFO("successMsg.info", "Success message");
+    SLEEPING_PERCENTAGE_NIGHT("night.sleepingPercentage", 25),
+    SLEEPING_TIME_NIGHT("night.sleepingTime", 5),
+    CLEAR_RAIN("night.clearRain", true),
+    SLEEPING_PERCENTAGE_STORM("storm.sleepingPercentage", 25),
+    SLEEPING_TIME_STORM("storm.sleepingTime", 5),
+    ANNOUNCEMENT_NIGHT("messages.nightAnnouncement", "&b{amount} players need to sleep to skip the night."),
+    SKIPPED_NIGHT("messages.nightSkipped", "&bThe night has been skipped"),
+    ANNOUNCEMENT_STORM("messages.stormAnnouncement", "&b{amount} players need to sleep to skip the storm."),
+    SKIPPED_STORM("messages.stormSkipped", "&bThe storm has been skipped");
 
-    override fun toString(): String = value.toString()
+    override fun toString(): String =
+        (NightSkip.config.getProperty(key) ?: default).toString()
 
-    fun toUInt(): Int = max(toString().toInt(), 0)
+    fun toUInt(): Int =
+        max(toString().toIntOrDefault(default.toString().toInt()), 0)
 
-    fun toUDouble(): Double = max(toString().toDouble(), 0.0)
+    fun toUDouble(): Double =
+        max(toString().toDoubleOrDefault(toUInt().toDouble()), 0.0)
 
     fun toPercentage(): Double = min(toUDouble(), 100.0)
 
-    fun toBoolean(): Boolean = toString().toBoolean()
+    fun toBoolean(): Boolean =
+        toString().toBooleanOrDefault(default.toString().toBooleanStrict())
 }
