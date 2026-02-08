@@ -37,7 +37,7 @@ class PlayerListener : Listener {
 
     private fun onPlayerEvent(event: PlayerEvent) {
         val wrapper = getWrapper(event.player.world)
-        scheduleTask { wrapper.handlePlayerEvent(event.type) }
+        scheduleTask { wrapper.handlePlayerEvent(event) }
     }
 
     private fun getWrapper(world: World) =

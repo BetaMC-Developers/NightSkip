@@ -4,7 +4,10 @@ import org.bukkit.Bukkit
 import org.bukkit.World
 import org.bukkit.craftbukkit.entity.CraftPlayer
 import org.bukkit.entity.Player
-import org.bukkit.event.Event.Type
+import org.bukkit.event.player.PlayerBedEnterEvent
+import org.bukkit.event.player.PlayerEvent
+import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerQuitEvent
 import kotlin.math.ceil
 
 class WorldWrapper(val worldName: String) {
@@ -67,29 +70,28 @@ class WorldWrapper(val worldName: String) {
         }, 1)
     }
 
-    fun handlePlayerEvent(type: Type) {
+    fun handlePlayerEvent(event: PlayerEvent) {
         if (!isNight && !isStorming) return
-        val required = getRequired(players.size)
-        when (type) {
-            Type.PLAYER_JOIN -> {
+        val required = getRequired(players)
+        when (event) {
+            is PlayerJoinEvent -> {
                 if (announced != Announced.NONE &&
-                    required != getRequired(players.size - 1))
+                    required != getRequired(players.minus(event.player)))
                     announce()
             }
-            Type.PLAYER_QUIT -> {
+            is PlayerQuitEvent -> {
                 if (announced != Announced.NONE &&
-                    required != getRequired(players.size + 1))
+                    required != getRequired(players.plus(event.player)))
                     announce()
             }
-            Type.PLAYER_BED_ENTER -> if (announced == Announced.NONE) announce()
-            else -> {}
+            is PlayerBedEnterEvent -> if (announced == Announced.NONE) announce()
         }
         updatePlayers()
     }
 
     private fun updatePlayers() {
-        val sleeping = sleepingPlayers.size
-        val required = getRequired(players.size)
+        val sleeping = sleepingPlayers.distinctBy { it.address.address }.count()
+        val required = getRequired(players)
 
         if (sleeping >= required && !taskRunning) {
             taskRunning = true
@@ -116,7 +118,7 @@ class WorldWrapper(val worldName: String) {
     private fun announce() {
         for (player in players) {
             player.sendColoredMessage(announcementMsg.replace(
-                "{amount}", "${getRequired(players.size)}"))
+                "{amount}", "${getRequired(players)}"))
         }
         announced = if (isNight) Announced.NIGHT else Announced.STORM
     }
@@ -127,8 +129,8 @@ class WorldWrapper(val worldName: String) {
         }
     }
 
-    private fun getRequired(amount: Int): Int {
-        val required = ceil(amount * (sleepingPercentage / 100)).toInt()
+    private fun getRequired(players: Iterable<Player>): Int {
+        val required = ceil(players.distinctBy { it.address.address }.count() * (sleepingPercentage / 100)).toInt()
         return if (required == 0) 1 else required
     }
 
